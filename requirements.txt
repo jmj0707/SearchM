@@ -13,4 +13,4 @@ langchain_community
 langchain_openai
 unstructured
 networkx
-streatmlit_chat
+streamlit_chat
