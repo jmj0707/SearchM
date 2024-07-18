@@ -1,0 +1,15 @@
+langchain
+openai
+pypdf
+chromadb
+rapidocr-onnxruntime
+tiktoken
+networkx
+psutil
+openpyxl
+pandas
+python-dotenv
+langchain_community
+langchain_openai
+unstructured
+networkx
