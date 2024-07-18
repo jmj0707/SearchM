@@ -15,3 +15,4 @@ unstructured
 networkx
 streamlit_chat
 streamlit
+pysqlite3-binary
