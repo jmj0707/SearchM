@@ -7,7 +7,7 @@ from services.chatbot import generate_responses
 from services.excel_processor import process_uploaded_file
 from streamlit_chat import message
 
-load_dotenv()
+#load_dotenv()
 
 st.set_page_config(page_title="SearchM CampaignBrief ChatBot", page_icon="💬", layout="wide")
 st.title("SearchM CampaignBrief 💬 ChatBot")
