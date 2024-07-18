@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import streamlit as st
+import sqlite3
 from dotenv import load_dotenv
 from langchain.docstore.document import Document
 from services.chatbot import generate_responses
