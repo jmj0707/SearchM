@@ -4,7 +4,11 @@ import streamlit as st
 from services.excel_processor import process_uploaded_file
 from streamlit_chat import message
 
-load_dotenv()
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
+#load_dotenv()
 
 st.set_page_config(page_title="SearchM CampaignBrief ChatBot", page_icon="💬", layout="wide")
 st.title("SearchM CampaignBrief 💬 ChatBot")
