@@ -17,7 +17,7 @@ def setup_model_and_generate_response(doc_chunks, user_input):
 def setup_chain(doc_chunks):
     embeddings = OpenAIEmbeddings()
     vector_store = Chroma.from_documents(doc_chunks, embeddings)
-    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 1})
 
     system_template = """
         (주)서치엠 회사에서 캠페인 브리프에 대한 정보를 제공하는 역할을 해야 합니다. 주어진 자료에 대해서 정확한 답변을 제공해 주세요.
