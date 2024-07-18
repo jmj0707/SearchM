@@ -4,8 +4,7 @@ import pandas as pd
 from langchain.docstore.document import Document
 from services.chatbot import generate_responses
 
-
-def process_uploaded_file(uploaded_files, user_input):
+def process_uploaded_file(uploaded_files, user_input, save_directory):
     sheet_responses = []
     response_generated = False
     file_sheet_data = {}
@@ -14,20 +13,19 @@ def process_uploaded_file(uploaded_files, user_input):
         try:
             file_path = uploaded_file.name
             file_name = os.path.splitext(os.path.basename(file_path))[0]
-            save_directory = os.path.join('/Users/mjjeong/Desktop/test', file_name)
+            save_path = os.path.join(save_directory, file_name)
 
-            if not os.path.exists(save_directory):
-                os.makedirs(save_directory)
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
 
             excel_data = pd.read_excel(uploaded_file, sheet_name=None)
             file_sheet_data[file_name] = {}
 
             for sheet_name, data in excel_data.items():
                 if sheet_name != 'Campaign Brief':
-                    output_file_path = os.path.join(save_directory, f'{sheet_name}.xlsx')
+                    output_file_path = os.path.join(save_path, f'{sheet_name}.xlsx')
                     data.to_excel(output_file_path, index=False)
 
-                    # DataFrame을 텍스트로 변환
                     text = data.to_string(index=False)
 
                     document = Document(
@@ -47,7 +45,6 @@ def process_uploaded_file(uploaded_files, user_input):
                     text = re.sub(r'(\d+\.\s*|\d+-\d+\.\s*)', r'$$\1', text)
                     processed_documents.append(text)
 
-                    print(processed_documents)
                     response = generate_responses(processed_documents, user_input, output_file_path)
 
                     file_sheet_data[file_name][sheet_name] = response
