@@ -1,8 +1,11 @@
+import re
 import os
 import pandas as pd
+from langchain.docstore.document import Document
 from services.chatbot import generate_responses
 
-def process_uploaded_file(uploaded_files, user_input, save_directory):
+
+def process_uploaded_file(uploaded_files, user_input):
     sheet_responses = []
     response_generated = False
     file_sheet_data = {}
@@ -11,25 +14,49 @@ def process_uploaded_file(uploaded_files, user_input, save_directory):
         try:
             file_path = uploaded_file.name
             file_name = os.path.splitext(os.path.basename(file_path))[0]
-            save_path = os.path.join(save_directory, file_name)
+            save_directory = os.path.join('/Users/mjjeong/Desktop/test', file_name)
 
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
+            if not os.path.exists(save_directory):
+                os.makedirs(save_directory)
 
             excel_data = pd.read_excel(uploaded_file, sheet_name=None)
             file_sheet_data[file_name] = {}
 
             for sheet_name, data in excel_data.items():
-                output_file_path = os.path.join(save_path, f'{sheet_name}.xlsx')
-                data.to_excel(output_file_path, index=False)
+                if sheet_name != 'Campaign Brief':
+                    output_file_path = os.path.join(save_directory, f'{sheet_name}.xlsx')
+                    data.to_excel(output_file_path, index=False)
 
-                processed_document = process_excel_file(output_file_path)
-                response = generate_responses(processed_document, user_input, output_file_path)
-                file_sheet_data[file_name][sheet_name] = response
+                    # DataFrame을 텍스트로 변환
+                    text = data.to_string(index=False)
 
-                sheet_responses.append(
-                    f"<p style='font-size:18px; font-weight:bold;'> {file_name} 파일의 {sheet_name} 시트 정보</p>\n{response if response else '결과를 가져올 수 없습니다.'}")
-                response_generated = True
+                    document = Document(
+                        metadata={'source': output_file_path, 'sheet': sheet_name},
+                        page_content=text
+                    )
+
+                    processed_documents = []
+                    text = document.page_content
+                    text = re.sub(r'\bNaN\b', '', text)
+                    text = re.sub(r'\s+', ' ', text)
+                    text = re.sub(r'\n{2,}', '\n', text)
+                    text = re.sub(r'\\n', '\n', text)
+                    text = re.sub(r'\s+', ' ', text)
+                    text = re.sub(r'Unnamed: \d+', '', text)
+                    text = re.sub(r'12\. 시안 제작.*', '', text, flags=re.DOTALL)
+                    text = re.sub(r'(\d+\.\s*|\d+-\d+\.\s*)', r'$$\1', text)
+                    processed_documents.append(text)
+
+                    print(processed_documents)
+                    response = generate_responses(processed_documents, user_input, output_file_path)
+
+                    file_sheet_data[file_name][sheet_name] = response
+                    sheet_responses.append(
+                        f"<p style='font-size:18px; font-weight:bold;'> {file_name} 파일의 {sheet_name} 시트 정보</p>\n"
+                        f"{response if response else '결과를 가져올 수 없습니다.'}"
+                    )
+                    response_generated = True
+
         except Exception as e:
             sheet_responses.append(f"오류 발생: {e}")
 
@@ -37,26 +64,3 @@ def process_uploaded_file(uploaded_files, user_input, save_directory):
         sheet_responses.append("파일을 업로드하지 않았거나, 파일 처리 중 오류가 발생했습니다.")
 
     return "\n\n---\n\n".join(sheet_responses), file_sheet_data
-
-def process_excel_file(file_path):
-    from langchain_community.document_loaders import UnstructuredExcelLoader
-    import re
-
-    try:
-        loader = UnstructuredExcelLoader(file_path=file_path, mode='single')
-        documents = loader.load()
-    except Exception as e:
-        print(f"XLSX 파일 로드 오류: {e}")
-        return []
-
-    processed_documents = []
-    for page in documents:
-        text = page.page_content
-        text = re.sub(r'\n{2,}', '\n', text)
-        text = re.sub(r'\\n', '\n', text)
-        text = re.sub(r'\s+', ' ', text)
-        text = re.sub(r'Unnamed: \d+', '', text)
-        text = re.sub(r'12\. 시안 제작.*', '', text, flags=re.DOTALL)
-        text = re.sub(r'(\d+\.\s*|\d+-\d+\.\s*)', r'$$\1', text)
-        processed_documents.append(text)
-    return processed_documents
