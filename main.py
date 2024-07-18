@@ -1,14 +1,10 @@
-import os
-import pandas as pd
-import streamlit as st
-import sqlite3
 from dotenv import load_dotenv
 from langchain.docstore.document import Document
-from services.chatbot import generate_responses
+import streamlit as st
 from services.excel_processor import process_uploaded_file
 from streamlit_chat import message
 
-#load_dotenv()
+load_dotenv()
 
 st.set_page_config(page_title="SearchM CampaignBrief ChatBot", page_icon="💬", layout="wide")
 st.title("SearchM CampaignBrief 💬 ChatBot")
@@ -24,8 +20,6 @@ if 'generated' not in st.session_state:
 if 'file_sheet_data' not in st.session_state:
     st.session_state['file_sheet_data'] = {}
 
-save_directory = st.text_input("Save Directory:", value=os.path.expanduser("~")) # Default는 Home
-
 uploaded_files = st.file_uploader("캠페인 브리프 파일을 업로드하세요", type=["xlsx"], accept_multiple_files=True)
 st.write("---")
 
@@ -34,8 +28,7 @@ def on_input_change():
     st.session_state.past.append(user_input) # past 배열에 user_input 추가
 
     if uploaded_files:
-        combined_response, file_sheet_data = process_uploaded_file(uploaded_files, user_input, save_directory)
-        st.write(combined_response)
+        combined_response, file_sheet_data = process_uploaded_file(uploaded_files, user_input)
         st.session_state.generated.append({'type': 'normal', 'data': combined_response}) # generated 배열에 응답 추가
         st.session_state.file_sheet_data.update(file_sheet_data)
     else:
@@ -77,22 +70,25 @@ for file_name, sheets in st.session_state['file_sheet_data'].items():
     for sheet_name, response in sheets.items():
         total[-1].append([sheet_name, response])  # 최신 서브 리스트에 시트 데이터를 추가
 
+    # st.write(file_data, total)
+
+
 docs = []
-k = 0
+k= 0
 for i in range(len(total)):  # 파일의 개수
     temp = file_data[i]
     for j in range(len(total[i])):
         page_content = str(total[i][j][1])
-        k = k + 1
+        k= k+1
 
         doc = Document(
             page_content=page_content,
-            metadata={'file_name': temp, 'sheet_name': total[i][j][0], 'page': k}
+            metadata={'file_name': temp, 'sheet_name': total[i][j][0], 'page' : k}
         )
         docs.append(doc)
 
 for doc in docs:
-    print(doc.page_content, doc.metadata)
+    st.write(doc.page_content, doc.metadata)
 
 st.write(docs)
 
