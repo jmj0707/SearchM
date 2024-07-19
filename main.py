@@ -1,12 +1,12 @@
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 from dotenv import load_dotenv
 from langchain.docstore.document import Document
 import streamlit as st
 from services.excel_processor import process_uploaded_file
 from streamlit_chat import message
-
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 #load_dotenv()
 
