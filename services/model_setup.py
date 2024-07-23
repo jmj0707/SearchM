@@ -1,13 +1,13 @@
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain.vectorstores import FAISS
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.chains import RetrievalQAWithSourcesChain
+from langchain_openai import ChatOpenAI
 
 def setup_model_and_generate_response(doc_chunks, user_input):
     try:
         chain, vector_store = setup_chain(doc_chunks)
         response = chain.invoke(user_input)
-        vector_store.delete_collection()  # 결과 받고 벡터 저장소 초기화
         return response.get('answer', '결과를 가져올 수 없습니다.')
     except Exception as e:
         return f"오류 발생: {str(e)}"
@@ -15,7 +15,8 @@ def setup_model_and_generate_response(doc_chunks, user_input):
 
 def setup_chain(doc_chunks):
     embeddings = OpenAIEmbeddings()
-    vector_store = Chroma.from_documents(doc_chunks, embeddings)
+    vector_store = FAISS.from_documents(doc_chunks, embeddings)
+    
     retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 1})
 
     system_template = """
