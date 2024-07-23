@@ -3,7 +3,6 @@ from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains import RetrievalQAWithSourcesChain
 
-
 def setup_model_and_generate_response(doc_chunks, user_input):
     try:
         chain, vector_store = setup_chain(doc_chunks)
@@ -57,10 +56,10 @@ def setup_chain(doc_chunks):
         * 타겟팅 (Targeting)
         * 포지셔닝 (Positioning)
 
-        시장세분화는 요약하여 설명하세요. 사용자가 각 목차와 관련된 질문을 하면, 해당 목차에 대한 상세한 답변을 제공하세요. 
+        시장세분화는 요약하여 설명하세요. 사용자가 각 목차와 관련된 질문을 하면, 조건을 보고 조건에 해당된다면 해당 목차에 대한 상세한 답변을 제공하세요. 
 
-        주어진 파일 내용을 바탕으로 위의 형식에 맞추어 정확하고 체계적인 정보를 제공해 주세요.
-        만약 해당 내용이 없으면 없음을 표시해주세요.
+        주어진 파일 내용을 바탕으로 위의 형식에 맞추어 정확한 정보를 제공해 주세요.
+        만약 주어진 연월일의 자료가 아니거나 주어진 내용이 없으면 반드시 없음을 표시해주세요.
 
         한글로 대답해주세요.
 
