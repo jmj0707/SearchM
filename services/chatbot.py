@@ -10,7 +10,7 @@ def create_document_chunks(processed_documents, output_file_path):
     from langchain.docstore.document import Document
 
     doc_chunks = []
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, separators=["$$"], chunk_overlap=50)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, separators=["$$", "\n"], chunk_overlap=50)
 
     for document in processed_documents:
         chunks = text_splitter.split_text(document)
