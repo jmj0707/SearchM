@@ -1,7 +1,6 @@
 langchain
 openai
-pypdf
-chromadb
+faiss-cpu
 rapidocr-onnxruntime
 tiktoken
 networkx
